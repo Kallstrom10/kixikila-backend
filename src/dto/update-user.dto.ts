@@ -21,7 +21,11 @@ export const UpdateUserDTO = z.object({
         .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
         .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
         // .regex(/[\W_]/, 'A senha deve conter pelo menos um caractere especial')
-        .optional()
+        .optional(),
+
+    imagem_perfil: z.string().optional(), // Imagem de perfil
+    imagem_bi_frente: z.string().optional(), // Imagem do bilhete de identidade (frente)
+    imagem_bi_verso: z.string().optional(), // Imagem do bilhete de identidade (verso)
 });
 
 export type UpdateUserDTO = z.infer<typeof UpdateUserDTO>;

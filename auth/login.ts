@@ -65,7 +65,7 @@ export default async function loginHandler(data: LoginParams, req: FastifyReques
     return res.status(200).send({
       id: user.id,
       nome_completo: user.nome_completo,
-      telefone: user.telefone,
+      telefone: user.telefone.toString(),
       imagem_perfil: user.imagem_perfil
     });
   } catch (error) {

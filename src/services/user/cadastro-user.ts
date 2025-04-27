@@ -90,14 +90,14 @@ export async function cadastrarUsuarioService(
       usuario: {
         id: novoUsuario.id,
         nome_completo: novoUsuario.nome_completo,
-        telefone: novoUsuario.telefone,
+        telefone: novoUsuario.telefone, // Converte BigInt para string
         imagens: {
           perfil: novoUsuario.imagem_perfil,
           bi_frente: novoUsuario.imagem_bi_frente,
           bi_verso: novoUsuario.imagem_bi_verso,
         },
       },
-    });
+    });    
   } catch (error) {
     console.error("Erro ao cadastrar usuário:", error);
     return res.status(500).send({

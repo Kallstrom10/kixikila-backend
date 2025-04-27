@@ -17,6 +17,9 @@ export async function obterUserService(req: FastifyRequest, res: FastifyReply) {
         id: true,
         nome_completo: true,
         telefone: true,
+        imagem_perfil: true,
+        imagem_bi_frente: true,
+        imagem_bi_verso: true
       },
     });
 

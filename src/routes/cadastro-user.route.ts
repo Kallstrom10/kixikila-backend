@@ -4,6 +4,32 @@ import { cadastrarUsuarioService } from "../services/user/cadastro-user";
 import fs from "fs";
 import path from "path";
 
+const timeZone = "Africa/Luanda";
+
+function ajustarFusoHorario(date: Date, timeZone: string): Date {
+  const formatter = new Intl.DateTimeFormat("pt-PT", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  const formattedParts = formatter.formatToParts(date);
+  const [year, month, day, hour, minute, second] = [
+    formattedParts.find((part) => part.type === "year")?.value,
+    formattedParts.find((part) => part.type === "month")?.value,
+    formattedParts.find((part) => part.type === "day")?.value,
+    formattedParts.find((part) => part.type === "hour")?.value,
+    formattedParts.find((part) => part.type === "minute")?.value,
+    formattedParts.find((part) => part.type === "second")?.value,
+  ];
+
+  return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}Z`);
+}
+
 export async function cadastrarUser(app: FastifyInstance) {
   app.post("/cadastro-usuario", async (req, res) => {
     const parts = req.parts();
@@ -24,7 +50,7 @@ export async function cadastrarUser(app: FastifyInstance) {
           // Dados dinâmicos para o nome dos arquivos
           const userTelefone = body.telefone || "telefone-nao-informado";
           const userNomeCompleto = body.nome_completo || "nome-nao-informado";
-          const dataAtual = new Date().toISOString().replace(/[:.-]/g, "");
+          const dataAtual = ajustarFusoHorario(new Date(), timeZone).toISOString().replace(/[:.-]/g, "");
           const fileExtension = path.extname(filePart.filename);
 
           let filename = "";
