@@ -18,7 +18,19 @@ export const CreateUserDTO = z.object({
     .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
     .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
     .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
-    .regex(/[\W_]/, 'A senha deve conter pelo menos um caractere especial')
+    .regex(/[\W_]/, 'A senha deve conter pelo menos um caractere especial'),
+
+    imagem_perfil: z
+    .instanceof(Object) // Para garantir que seja um arquivo de upload (como `File`)
+    .optional(), // Imagem de perfil é opcional
+
+    imagem_bi_frente: z
+    .instanceof(Object) // BI (frente)
+    .optional(),
+
+    imagem_bi_verso: z
+    .instanceof(Object) // BI (verso)
+    .optional(),
 });
 
 export type CreateUserDTO = z.infer<typeof CreateUserDTO>;

@@ -16,11 +16,18 @@ datasource db {
 model User {
   id            Int       @id @default(autoincrement())
   nome_completo String
-  telefone      Int       @unique
+  telefone      BigInt    @unique
   senha         String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   Session       Session[]
+
+  // Campos para imagens
+  imagem_perfil    String?
+  imagem_bi_frente String?
+  imagem_bi_verso  String?
+
+  @@map("usuarios")
 }
 
 model Session {

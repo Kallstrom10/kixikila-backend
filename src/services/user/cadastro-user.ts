@@ -1,11 +1,10 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { prisma } from "../prisma"
-import { CreateUserDTO } from "../../dto/create-user.dto";
+import { FastifyReply } from "fastify";
+import { prisma } from "../prisma";
 import bcrypt from "bcrypt";
+import { MultipartFile } from "@fastify/multipart";
 
-const timeZone = "Africa/Luanda"; // Fuso GMT+1 para Angola
+const timeZone = "Africa/Luanda";
 
-// Função para ajustar data no fuso horário GMT+1
 function ajustarFusoHorario(date: Date, timeZone: string): Date {
   const formatter = new Intl.DateTimeFormat("pt-PT", {
     timeZone,
@@ -33,45 +32,76 @@ function ajustarFusoHorario(date: Date, timeZone: string): Date {
 const SALT_ROUNDS = 10;
 
 export async function cadastrarUsuarioService(
-  request: FastifyRequest<{ Body: CreateUserDTO }>,
-  reply: FastifyReply
+  body: Record<string, string>,
+  files: Record<string, MultipartFile>,
+  res: FastifyReply
 ) {
-  const { nome_completo, telefone, senha } = request.body;
+  const { nome_completo, telefone, senha } = body;
+
+  console.log("FILES NO SERVICE:", files);
+  console.log("BODY NO SERVICE:", body);
+
+  // Verificação se todas as imagens obrigatórias foram enviadas
+  if (!files.imagem_perfil || !files.imagem_bi_frente || !files.imagem_bi_verso) {
+    return res.status(400).send({
+      mensagem: "Imagens obrigatórias não foram enviadas.",
+    });
+  }
+
+  // Verificação do comprimento do telefone
+  if (telefone.length > 9) {
+    return res.status(400).send({
+      mensagem: "O número de telefone não pode ter mais de 9 dígitos.",
+    });
+  }
 
   try {
-    // Verifica se o telefone já está em uso
+    // Verificar se o telefone já está em uso
     const usuarioExistente = await prisma.user.findUnique({
-      where: { telefone: Number(telefone) }
+      where: { telefone: Number(telefone) },
     });
 
     if (usuarioExistente) {
-      return reply.status(409).send({ mensagem: "Já existe um usuário com este telefone, cadastre com outro." });
+      return res.status(409).send({
+        mensagem: "Já existe um usuário com este telefone, cadastre com outro.",
+      });
     }
 
-    // Criptografa a senha
+    // Criptografar a senha
     const senhaCriptografada = await bcrypt.hash(senha, SALT_ROUNDS);
 
-    // Cria o novo usuário
+    // Criar o novo usuário
     const novoUsuario = await prisma.user.create({
       data: {
         nome_completo,
-        telefone,
+        telefone: Number(telefone),
         senha: senhaCriptografada,
-      }
+        imagem_perfil: files.imagem_perfil.filename,
+        imagem_bi_frente: files.imagem_bi_frente.filename,
+        imagem_bi_verso: files.imagem_bi_verso.filename,
+        createdAt: ajustarFusoHorario(new Date(), timeZone),
+        updatedAt: ajustarFusoHorario(new Date(), timeZone)
+      },
     });
 
-    return reply.status(201).send({
+    // Retornar sucesso
+    return res.status(201).send({
       mensagem: "Usuário cadastrado com sucesso.",
       usuario: {
         id: novoUsuario.id,
         nome_completo: novoUsuario.nome_completo,
         telefone: novoUsuario.telefone,
-        criadoEm: ajustarFusoHorario(new Date(), timeZone),
-      }
+        imagens: {
+          perfil: novoUsuario.imagem_perfil,
+          bi_frente: novoUsuario.imagem_bi_frente,
+          bi_verso: novoUsuario.imagem_bi_verso,
+        },
+      },
     });
-
   } catch (error) {
     console.error("Erro ao cadastrar usuário:", error);
-    return reply.status(500).send({ mensagem: "Erro interno ao cadastrar usuário." });
+    return res.status(500).send({
+      mensagem: "Erro interno ao cadastrar usuário.",
+    });
   }
 }

@@ -61,11 +61,12 @@ export default async function loginHandler(data: LoginParams, req: FastifyReques
   res.header('Set-Cookie', `sessionId=${session.id}; Path=/; HttpOnly; SameSite=Lax`);
 
 
-    // Retorna os dados do médico no corpo da resposta
+    // Retorna os dados do usuário no corpo da resposta
     return res.status(200).send({
       id: user.id,
       nome_completo: user.nome_completo,
-      telefone: user.telefone
+      telefone: user.telefone,
+      imagem_perfil: user.imagem_perfil
     });
   } catch (error) {
     console.error('Erro durante o login:', error);
