@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../src/services/prisma';
 import { comparePasswords } from '../auth/auth';
-import { LoginParams } from '../src/routes/login.route';
+import { LoginParams } from '../src/routes/users/login.route';
 import { error } from 'console';
 
 const timeZone = "Africa/Luanda"; // Fuso GMT+1 para Angola

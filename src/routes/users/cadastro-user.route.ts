@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { Multipart, MultipartFile } from "@fastify/multipart";
-import { cadastrarUsuarioService } from "../services/user/cadastro-user";
-import { prisma } from "../services/prisma"; // Importando Prisma para verificar o usuário
+import { cadastrarUsuarioService } from "../../services/user/cadastro-user";
+import { prisma } from "../../services/prisma"; // Importando Prisma para verificar o usuário
 import fs from "fs";
 import path from "path";
 

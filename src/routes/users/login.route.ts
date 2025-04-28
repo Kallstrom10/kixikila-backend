@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import loginHandler from '../../auth/login';
+import loginHandler from '../../../auth/login';
 
 export interface LoginParams {
   telefone: number;

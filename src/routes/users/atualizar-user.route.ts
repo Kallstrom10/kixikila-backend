@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { Multipart, MultipartFile } from "@fastify/multipart";
-import { atualizarUsuarioService } from "../services/user/atualizar-user";
+import { atualizarUsuarioService } from "../../services/user/atualizar-user";
 import fs from "fs";
 import path from "path";
 

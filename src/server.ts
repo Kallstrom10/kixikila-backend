@@ -29,23 +29,47 @@ app.register(cors, {
 });
 
 // Registrar rotas
-import { cadastrarUser } from "../src/routes/cadastro-user.route";
+import { cadastrarUser } from "./routes/users/cadastro-user.route";
 app.register(cadastrarUser, { prefix: "/usuarios" });
 
-import { atualizarUser } from "../src/routes/atualizar-user.route";
+import { atualizarUser } from "./routes/users/atualizar-user.route";
 app.register(atualizarUser, { prefix: "/usuarios" });
 
-import { login } from "../src/routes/login.route";
+import { login } from "./routes/users/login.route";
 app.register(login, { prefix: "/auth" });
 
-import { deletarUser } from "../src/routes/deletar-user.route";
+import { deletarUser } from "./routes/users/deletar-user.route";
 app.register(deletarUser, { prefix: "/usuarios" });
 
-import { listarUsers } from "../src/routes/listar-user.route";
+import { listarUsers } from "./routes/users/listar-user.route";
 app.register(listarUsers, { prefix: "/usuarios" });
 
-import { obterUser } from "../src/routes/obter-user.route";
+import { obterUser } from "./routes/users/obter-user.route";
 app.register(obterUser, { prefix: "/usuarios" });
+
+//FUNÇÕES E ROTAS DA KIXIKILA
+import { criarKixikila } from "./routes/grupo-kixikila/criar-grupo.route";
+app.register(criarKixikila, {prefix:"/kixikila"})
+
+import { deletarKixikila } from "./routes/grupo-kixikila/deletar-kixkila.route";
+app.register(deletarKixikila, {prefix:"/kixikila"})
+
+import { listarKixikilas } from "./routes/grupo-kixikila/listar-kixikila.route";
+app.register(listarKixikilas, {prefix:"/kixikila"})
+
+import { listarKixikilasUsuario } from "./routes/grupo-kixikila/listar-kixikila-user.route";
+app.register(listarKixikilasUsuario, {prefix:"/kixikila"})
+
+//FUNÇÕES E ROTAS DA CONTA BANCÁRIA
+import { adicionarContaBancaria } from "./routes/conta-bancaria/conta-bacaria.route";
+app.register(adicionarContaBancaria, {prefix:"/contas"})
+
+import { eliminarContaBancaria } from "./routes/conta-bancaria/deletar-conta.route";
+app.register(eliminarContaBancaria, {prefix:"/contas"})
+
+//FUNÇÕES E ROTAS DA CARTEIRA
+import { criarCarteira } from "./routes/carteira-kixikila/criar-carteira.route";
+app.register(criarCarteira, {prefix:"carteira"})
 
 const start = async () => {
     try {

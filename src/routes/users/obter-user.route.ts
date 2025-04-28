@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { obterUserService } from "../services/user/obter-user";
+import { obterUserService } from "../../services/user/obter-user";
 
 export function obterUser(app: FastifyInstance) {
   app.get<{ Params: { id: string } }>(

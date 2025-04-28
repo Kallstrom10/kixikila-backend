@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { deletarUserService } from "../services/user/deletar-usuario";
+import { deletarUserService } from "../../services/user/deletar-usuario";
 
 export function deletarUser(app: FastifyInstance) {
     app.delete<{ 

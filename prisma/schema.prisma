@@ -60,6 +60,8 @@ model Kixikila {
   // Relacionamentos
   admin   User              @relation(fields: [adminId], references: [id])
   membros UsuarioKixikila[]
+
+  @@map("kixikilas")
 }
 
 model UsuarioKixikila {
@@ -76,12 +78,14 @@ model UsuarioKixikila {
 
 model ContaBancaria {
   id              String  @id @default(uuid())
-  iban            String
+  iban            BigInt
   ordenante       String
   usuarioId       String  @unique() // Garante o relacionamento um-para-um (agora String)
   userAgreedTerms Boolean
 
   usuario User @relation(fields: [usuarioId], references: [id])
+
+  @@map("contas_bancarias")
 }
 
 model Carteira {
@@ -92,6 +96,8 @@ model Carteira {
   usuarioId String   @unique() // Garante o relacionamento um-para-um (agora String)
 
   usuario User @relation(fields: [usuarioId], references: [id])
+
+  @@map("carteiras")
 }
 
 enum Frequencias {
