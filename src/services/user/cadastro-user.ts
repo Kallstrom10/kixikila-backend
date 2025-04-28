@@ -41,14 +41,12 @@ export async function cadastrarUsuarioService(
   console.log("FILES NO SERVICE:", files);
   console.log("BODY NO SERVICE:", body);
 
-  // Verificação se todas as imagens obrigatórias foram enviadas
   if (!files.imagem_perfil || !files.imagem_bi_frente || !files.imagem_bi_verso) {
     return res.status(400).send({
       mensagem: "Imagens obrigatórias não foram enviadas.",
     });
   }
 
-  // Verificação do comprimento do telefone
   if (telefone.length > 9) {
     return res.status(400).send({
       mensagem: "O número de telefone não pode ter mais de 9 dígitos.",
@@ -56,7 +54,6 @@ export async function cadastrarUsuarioService(
   }
 
   try {
-    // Verificar se o telefone já está em uso
     const usuarioExistente = await prisma.user.findUnique({
       where: { telefone: Number(telefone) },
     });
@@ -67,10 +64,8 @@ export async function cadastrarUsuarioService(
       });
     }
 
-    // Criptografar a senha
     const senhaCriptografada = await bcrypt.hash(senha, SALT_ROUNDS);
 
-    // Criar o novo usuário
     const novoUsuario = await prisma.user.create({
       data: {
         nome_completo,
@@ -80,28 +75,47 @@ export async function cadastrarUsuarioService(
         imagem_bi_frente: files.imagem_bi_frente.filename,
         imagem_bi_verso: files.imagem_bi_verso.filename,
         createdAt: ajustarFusoHorario(new Date(), timeZone),
-        updatedAt: ajustarFusoHorario(new Date(), timeZone)
+        updatedAt: ajustarFusoHorario(new Date(), timeZone),
       },
     });
 
-    // Retornar sucesso
+    // Gerar e criar uma carteira para o novo usuário
+    const dataExpiracao = new Date();
+    dataExpiracao.setFullYear(dataExpiracao.getFullYear() + 3); // Validade de 5 anos
+
+    const cartaoGerado = BigInt(Math.floor(10 ** 17 + Math.random() * 9 * 10 ** 17)); // 18 dígitos únicos
+
+    await prisma.carteira.create({
+      data: {
+        cartao: cartaoGerado,
+        saldo: 0,
+        validoAte: ajustarFusoHorario(dataExpiracao, timeZone),
+        usuarioId: novoUsuario.id,
+      },
+    });
+
     return res.status(201).send({
-      mensagem: "Usuário cadastrado com sucesso.",
+      mensagem: "Usuário e carteira cadastrados com sucesso.",
       usuario: {
         id: novoUsuario.id,
         nome_completo: novoUsuario.nome_completo,
-        telefone: novoUsuario.telefone, // Converte BigInt para string
+        telefone: novoUsuario.telefone,
         imagens: {
           perfil: novoUsuario.imagem_perfil,
           bi_frente: novoUsuario.imagem_bi_frente,
           bi_verso: novoUsuario.imagem_bi_verso,
         },
+        carteira: {
+          cartao: cartaoGerado.toString(),
+          saldo: 0,
+          validoAte: dataExpiracao.toISOString(),
+        },
       },
-    });    
+    });
   } catch (error) {
-    console.error("Erro ao cadastrar usuário:", error);
+    console.error("Erro ao cadastrar usuário e carteira:", error);
     return res.status(500).send({
-      mensagem: "Erro interno ao cadastrar usuário.",
+      mensagem: "Erro interno ao cadastrar usuário e carteira.",
     });
   }
 }

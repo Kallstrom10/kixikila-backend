@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { Multipart, MultipartFile } from "@fastify/multipart";
 import { cadastrarUsuarioService } from "../services/user/cadastro-user";
+import { prisma } from "../services/prisma"; // Importando Prisma para verificar o usuário
 import fs from "fs";
 import path from "path";
 
@@ -49,7 +50,6 @@ export async function cadastrarUser(app: FastifyInstance) {
 
           // Dados dinâmicos para o nome dos arquivos
           const userTelefone = body.telefone || "telefone-nao-informado";
-          const userNomeCompleto = body.nome_completo || "nome-nao-informado";
           const dataAtual = ajustarFusoHorario(new Date(), timeZone).toISOString().replace(/[:.-]/g, "");
           const fileExtension = path.extname(filePart.filename);
 
@@ -57,13 +57,13 @@ export async function cadastrarUser(app: FastifyInstance) {
 
           switch (filePart.fieldname) {
             case "imagem_perfil":
-              filename = `selfie-${userTelefone}-${userNomeCompleto}-${dataAtual}${fileExtension}`;
+              filename = `selfie-${userTelefone}-${dataAtual}${fileExtension}`;
               break;
             case "imagem_bi_frente":
-              filename = `bilhete-frente-${userTelefone}-${userNomeCompleto}-${dataAtual}${fileExtension}`;
+              filename = `bilhete-frente-${userTelefone}-${dataAtual}${fileExtension}`;
               break;
             case "imagem_bi_verso":
-              filename = `bilhete-traseira-${userTelefone}-${userNomeCompleto}-${dataAtual}${fileExtension}`;
+              filename = `bilhete-traseira-${userTelefone}-${dataAtual}${fileExtension}`;
               break;
             default:
               filename = `arquivo-${dataAtual}${fileExtension}`;
@@ -89,6 +89,17 @@ export async function cadastrarUser(app: FastifyInstance) {
           const fieldPart = part as Multipart;
           body[fieldPart.fieldname] = "value" in fieldPart ? (fieldPart as any).value as string : "";
         }
+      }
+
+      // Verificar se o telefone já está registrado antes de salvar imagens
+      const telefoneExiste = await prisma.user.findUnique({
+        where: { telefone: Number(body.telefone) },
+      });
+
+      if (telefoneExiste) {
+        return res.status(409).send({
+          mensagem: "Já existe um usuário com este telefone, cadastre com outro.",
+        });
       }
 
       console.log("BODY RECEBIDO NA ROTA:", body);

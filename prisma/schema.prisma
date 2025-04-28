@@ -2,6 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
@@ -14,7 +17,7 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(uuid())
   nome_completo String
   telefone      Int       @unique
   senha         String
@@ -26,17 +29,75 @@ model User {
   imagem_perfil    String?
   imagem_bi_frente String?
   imagem_bi_verso  String?
+  Kixikila         Kixikila[]
+  UsuarioKixikila  UsuarioKixikila[]
+  ContaBancaria    ContaBancaria?
+  Carteira         Carteira?
 
   @@map("usuarios")
 }
 
 model Session {
   id        String    @id @default(uuid()) // Identificador único da sessão
-  userId    Int // Relacionamento com o médico logado
+  userId    String // Relacionamento com o usuário logado (agora String)
   user      User      @relation(fields: [userId], references: [id]) // Chave estrangeira para o modelo User
   createdAt DateTime  @default(now()) // Data de criação da sessão
   expired   Boolean   @default(false) // Indica se a sessão está expirada
   expiresAt DateTime? // Data de expiração (opcional, caso queira sessões temporárias)
 
   @@map("sessoes")
+}
+
+model Kixikila {
+  id              String      @id @default(uuid())
+  grupo           String
+  valor           Int
+  limiteDeMembros Int
+  adminId         String // ID do usuário que criou a Kixikila
+  inicio          DateTime
+  frequencia      Frequencias
+
+  // Relacionamentos
+  admin   User              @relation(fields: [adminId], references: [id])
+  membros UsuarioKixikila[]
+}
+
+model UsuarioKixikila {
+  id          String @id @default(uuid())
+  id_kixikila String
+  usuarioId   String // Referencia o ID (String) do User
+
+  // Relacionamentos
+  kixikila Kixikila @relation(fields: [id_kixikila], references: [id])
+  usuario  User     @relation(fields: [usuarioId], references: [id])
+
+  @@unique([usuarioId, id_kixikila])
+}
+
+model ContaBancaria {
+  id              String  @id @default(uuid())
+  iban            String
+  ordenante       String
+  usuarioId       String  @unique() // Garante o relacionamento um-para-um (agora String)
+  userAgreedTerms Boolean
+
+  usuario User @relation(fields: [usuarioId], references: [id])
+}
+
+model Carteira {
+  id        String   @id @default(uuid())
+  cartao    BigInt // 18 dígitos, pode usar BigInt
+  saldo     Int      @default(0)
+  validoAte DateTime
+  usuarioId String   @unique() // Garante o relacionamento um-para-um (agora String)
+
+  usuario User @relation(fields: [usuarioId], references: [id])
+}
+
+enum Frequencias {
+  DIARIA
+  SEMANAL
+  QUINZENAL
+  MENSAL
+  ANUAL
 }

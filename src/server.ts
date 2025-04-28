@@ -23,7 +23,7 @@ app.register(fastifyMultipart, {
 
 // Registrar CORS
 app.register(cors, {
-    origin: 'http://localhost:3000',
+    origin: ["*"],
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     credentials: true
 });
