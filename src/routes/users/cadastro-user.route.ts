@@ -35,9 +35,16 @@ export async function cadastrarUser(app: FastifyInstance) {
   app.post("/cadastrar-usuario", async (req, res) => {
     const parts = req.parts();
     const body: Record<string, string> = {};
+    const files: Record<string, { filename: string; mimetype: string; path: string }> = {};
+
+    // Ajustar para a pasta uploads na raiz do projeto
+    const uploadDir = path.join(__dirname, "../../uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
     try {
-      // Extrair os campos de texto primeiro
+      // Primeiro, coletar os dados do formulário antes de processar os arquivos
       for await (const part of parts) {
         if (!(part as MultipartFile).file) {
           const fieldPart = part as Multipart;
@@ -45,9 +52,11 @@ export async function cadastrarUser(app: FastifyInstance) {
         }
       }
 
-      // Verificar se o telefone já está registrado antes de processar imagens
-      const telefoneExiste = await prisma.user.findUnique({
-        where: { telefone: Number(body.telefone) },
+      const telefoneNumero = parseInt(body.telefone, 10);
+
+      // Verificar se o telefone já está registrado antes de salvar imagens
+      const telefoneExiste = await prisma.user.findFirst({
+        where: { telefone: telefoneNumero },
       });
 
       if (telefoneExiste) {
@@ -56,19 +65,14 @@ export async function cadastrarUser(app: FastifyInstance) {
         });
       }
 
-      // Se o telefone for válido, continuar a salvar arquivos
-      const files: Record<string, { filename: string; mimetype: string; path: string }> = {};
-      const uploadDir = path.join(__dirname, "../../uploads");
-
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
+      // Processar imagens apenas se o telefone for válido
       for await (const part of parts) {
         if ((part as MultipartFile).file) {
           const filePart = part as MultipartFile;
+
+          // Dados dinâmicos para o nome dos arquivos
           const userTelefone = body.telefone || "telefone-nao-informado";
-          const dataAtual = ajustarFusoHorario(new Date(), "Africa/Luanda").toISOString().replace(/[:.-]/g, "");
+          const dataAtual = ajustarFusoHorario(new Date(), timeZone).toISOString().replace(/[:.-]/g, "");
           const fileExtension = path.extname(filePart.filename);
 
           let filename = "";
@@ -88,23 +92,26 @@ export async function cadastrarUser(app: FastifyInstance) {
               break;
           }
 
-          const filePath = path.join(uploadDir, filename);
-          const writeStream = fs.createWriteStream(filePath);
+          const filePath = path.join(uploadDir, filename); // Caminho completo para salvar o arquivo
 
+          const writeStream = fs.createWriteStream(filePath);
           for await (const chunk of filePart.file) {
             writeStream.write(chunk);
           }
           writeStream.end();
 
           files[filePart.fieldname] = {
-            filename,
+            filename, // Nome único gerado
             mimetype: filePart.mimetype,
-            path: filePath,
+            path: filePath, // Caminho do arquivo no disco
           };
 
           console.log(`Arquivo salvo em: ${filePath}`);
         }
       }
+
+      console.log("BODY RECEBIDO NA ROTA:", body);
+      console.log("FILES RECEBIDOS NA ROTA:", files);
 
       const adjustedFiles: Record<string, MultipartFile> = {};
       Object.keys(files).forEach((key) => {
