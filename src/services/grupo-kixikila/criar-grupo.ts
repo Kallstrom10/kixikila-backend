@@ -43,7 +43,7 @@ export async function criarKixikilaService(
   
       if (!adminExiste) {
         return res.status(404).send({
-          mensagem: "O administrador especificado não foi encontrado.",
+          mensagem: "O administrador não foi encontrado.",
         });
       }
   
@@ -63,7 +63,6 @@ export async function criarKixikilaService(
       });
   
       return res.status(201).send({
-        mensagem: "Grupo Kixikila criado com sucesso.",
         grupo: novoKixikila,
       });
     } catch (error) {

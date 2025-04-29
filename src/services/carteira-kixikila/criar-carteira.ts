@@ -48,7 +48,6 @@ export async function criarCarteiraService(
     });
 
     return res.status(201).send({
-      mensagem: "Carteira criada com sucesso.",
       carteira: {
         id: novaCarteira.id,
         cartao: novaCarteira.cartao.toString(), // Convertendo BigInt para string

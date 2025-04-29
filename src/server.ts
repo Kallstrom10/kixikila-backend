@@ -73,8 +73,8 @@ app.register(criarCarteira, {prefix:"carteira"})
 
 const start = async () => {
     try {
-        await app.listen({ port: 8080, host: '0.0.0.0' });
-        console.log('Servidor working em: http://localhost:8080');
+        await app.listen({ port: 7777, host: '0.0.0.0' });
+        console.log('Servidor working em: http://localhost:7777');
     } catch (err) {
         app.log.error(err);
         process.exit(1);

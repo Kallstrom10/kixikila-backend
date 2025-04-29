@@ -23,7 +23,6 @@ export async function deletarKixikilaService(
     });
 
     return res.status(200).send({
-      mensagem: "Grupo Kixikila deletado com sucesso.",
     });
   } catch (error) {
     console.error("Erro ao deletar grupo Kixikila:", error);

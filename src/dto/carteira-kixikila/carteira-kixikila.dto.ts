@@ -7,4 +7,4 @@ export const CreateCarteiraDTO = z.object({
     .uuid("O ID do usuário deve ser um UUID válido."),
 });
 
-export type CreateCarteiraDTO = z.infer<typeof CreateCarteiraDTO>;
+export type CreateCarteiraDTO = z.infer<typeof CreateCarteiraDTO>; 

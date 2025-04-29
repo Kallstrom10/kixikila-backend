@@ -41,7 +41,7 @@ export default async function loginHandler(data: LoginParams, req: FastifyReques
 
   try {
     // Busca o usuário pelo telefone
-    const user = await prisma.user.findUnique({ where: { telefone: telefoneConvertido } });
+    const user = await prisma.user.findUnique({ where: { telefone: telefoneConvertido }, include: { Carteira: { select: { saldo: true, cartao: true, validoAte: true } } } });
 
     // Verifica se o usuário existe e se a senha está correta
     if (!user || !comparePasswords(senha, user.senha)) {
@@ -63,10 +63,17 @@ export default async function loginHandler(data: LoginParams, req: FastifyReques
 
     // Retorna os dados do usuário no corpo da resposta
     return res.status(200).send({
-      id: user.id,
-      nome_completo: user.nome_completo,
-      telefone: user.telefone.toString(),
-      imagem_perfil: user.imagem_perfil
+      usuario: {
+        id: user.id,
+        nome_completo: user.nome_completo,
+        telefone: user.telefone.toString(),
+        imagem_perfil: user.imagem_perfil,
+        carteira: {
+          cartao: user.Carteira?.cartao,
+          saldo: user.Carteira?.saldo,
+          validoAte: user.Carteira?.validoAte
+        }
+      },
     });
   } catch (error) {
     console.error('Erro durante o login:', error);

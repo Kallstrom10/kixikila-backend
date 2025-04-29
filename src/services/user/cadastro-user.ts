@@ -95,16 +95,11 @@ export async function cadastrarUsuarioService(
     });
 
     return res.status(201).send({
-      mensagem: "Usuário e carteira cadastrados com sucesso.",
       usuario: {
         id: novoUsuario.id,
         nome_completo: novoUsuario.nome_completo,
         telefone: novoUsuario.telefone,
-        imagens: {
-          perfil: novoUsuario.imagem_perfil,
-          bi_frente: novoUsuario.imagem_bi_frente,
-          bi_verso: novoUsuario.imagem_bi_verso,
-        },
+        imagem_perfil: novoUsuario.imagem_perfil,
         carteira: {
           cartao: cartaoGerado.toString(),
           saldo: 0,

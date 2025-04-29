@@ -17,7 +17,7 @@ export async function adicionarContaBancariaService(
   
       if (contaExistente) {
         return res.status(409).send({
-          mensagem: "Este IBAN já está associado a outra conta bancária.",
+          mensagem: "IBAN existente.",
         });
       }
   
@@ -43,7 +43,6 @@ export async function adicionarContaBancariaService(
       });
   
       return res.status(201).send({
-        mensagem: "Conta bancária adicionada com sucesso.",
         conta: {
           ...novaConta,
           iban: novaConta.iban.toString(), // Convertendo BigInt para string para retornar na resposta

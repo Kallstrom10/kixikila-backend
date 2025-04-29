@@ -43,7 +43,6 @@ export async function listarKixikilasUsuarioService(
     });
 
     return res.status(200).send({
-      mensagem: "Grupos Kixikila do usuário recuperados com sucesso.",
       grupos: gruposFormatados,
     });
   } catch (error) {
