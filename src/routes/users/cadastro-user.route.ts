@@ -44,28 +44,6 @@ export async function cadastrarUser(app: FastifyInstance) {
     }
 
     try {
-      // Primeiro, coletar os dados do formulário antes de processar os arquivos
-      for await (const part of parts) {
-        if (!(part as MultipartFile).file) {
-          const fieldPart = part as Multipart;
-          body[fieldPart.fieldname] = "value" in fieldPart ? (fieldPart as any).value as string : "";
-        }
-      }
-
-      const telefoneNumero = parseInt(body.telefone, 10);
-
-      // Verificar se o telefone já está registrado antes de salvar imagens
-      const telefoneExiste = await prisma.user.findFirst({
-        where: { telefone: telefoneNumero },
-      });
-
-      if (telefoneExiste) {
-        return res.status(409).send({
-          mensagem: "Já existe um usuário com este telefone, cadastre com outro.",
-        });
-      }
-
-      // Processar imagens apenas se o telefone for válido
       for await (const part of parts) {
         if ((part as MultipartFile).file) {
           const filePart = part as MultipartFile;
@@ -107,7 +85,21 @@ export async function cadastrarUser(app: FastifyInstance) {
           };
 
           console.log(`Arquivo salvo em: ${filePath}`);
+        } else {
+          const fieldPart = part as Multipart;
+          body[fieldPart.fieldname] = "value" in fieldPart ? (fieldPart as any).value as string : "";
         }
+      }
+
+      // Verificar se o telefone já está registrado antes de salvar imagens
+      const telefoneExiste = await prisma.user.findUnique({
+        where: { telefone: Number(body.telefone) },
+      });
+
+      if (telefoneExiste) {
+        return res.status(409).send({
+          mensagem: "Já existe um usuário com este telefone, cadastre com outro.",
+        });
       }
 
       console.log("BODY RECEBIDO NA ROTA:", body);
