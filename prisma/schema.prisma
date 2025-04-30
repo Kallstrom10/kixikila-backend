@@ -15,7 +15,7 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
+// ---------------------------------------
 model User {
   id            String    @id @default(uuid())
   nome_completo String
@@ -31,12 +31,13 @@ model User {
   imagem_bi_verso  String?
   Kixikila         Kixikila[]
   UsuarioKixikila  UsuarioKixikila[]
+  Convidado        Convidado[] // Relacionamento com os convites
   ContaBancaria    ContaBancaria?
   Carteira         Carteira?
 
   @@map("usuarios")
 }
-
+// ---------------------------------------
 model Session {
   id        String    @id @default(uuid()) // Identificador único da sessão
   userId    String // Relacionamento com o usuário logado (agora String)
@@ -47,23 +48,24 @@ model Session {
 
   @@map("sessoes")
 }
-
+// ---------------------------------------
 model Kixikila {
   id              String      @id @default(uuid())
   grupo           String
   valor           Int
   limiteDeMembros Int
-  adminId         String // ID do usuário que criou a Kixikila
+  adminId         String      // ID do usuário que criou a Kixikila
   inicio          DateTime
   frequencia      Frequencias
 
   // Relacionamentos
-  admin   User              @relation(fields: [adminId], references: [id])
-  membros UsuarioKixikila[]
+  admin       User                @relation(fields: [adminId], references: [id])
+  membros     UsuarioKixikila[]
+  convidados  Convidado[]
 
   @@map("kixikilas")
 }
-
+// ---------------------------------------
 model UsuarioKixikila {
   id          String @id @default(uuid())
   id_kixikila String
@@ -75,7 +77,7 @@ model UsuarioKixikila {
 
   @@unique([usuarioId, id_kixikila])
 }
-
+// ---------------------------------------
 model ContaBancaria {
   id              String  @id @default(uuid())
   iban            BigInt
@@ -87,7 +89,7 @@ model ContaBancaria {
 
   @@map("contas_bancarias")
 }
-
+// ---------------------------------------
 model Carteira {
   id        String   @id @default(uuid())
   cartao    BigInt // 18 dígitos, pode usar BigInt
@@ -106,4 +108,26 @@ enum Frequencias {
   QUINZENAL
   MENSAL
   ANUAL
+}
+// ---------------------------------------
+model Convidado {
+  id               String    @id @default(uuid())
+  kixikilaId       String    // Referência ao grupo Kixikila
+  usuarioId        String    // Referência ao usuário convidado
+  conviteEnviadoPor String    // ID do usuário que enviou o convite
+  status           Status    @default(PENDENTE)
+  dataConvite      DateTime  @default(now()) // Registro da data de envio
+
+  // Relacionamentos
+  kixikila Kixikila @relation(fields: [kixikilaId], references: [id])
+  convidador User  @relation(fields: [conviteEnviadoPor], references: [id]) // Quem enviou o convite
+
+  @@unique([kixikilaId, usuarioId]) // Um usuário só pode ser convidado uma vez por grupo
+  @@map("convidados")
+}
+
+enum Status {
+  APROVADO
+  PENDENTE
+  NEGADO
 }
