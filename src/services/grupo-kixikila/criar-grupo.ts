@@ -1,5 +1,5 @@
 import { FastifyReply } from "fastify";
-import { prisma } from "../prisma"; // Certifique-se de ter o cliente do Prisma configurado
+import { prisma } from "../prisma"; 
 import { CreateKixikilaDTO } from "../../dto/kixikila DTOs/create-kixikila.dto";
 
 const timeZone = "Africa/Luanda";
@@ -29,6 +29,7 @@ function ajustarFusoHorario(date: Date, timeZone: string): Date {
 }
 
 export async function criarKixikilaService(
+    adminId: string, 
     body: CreateKixikilaDTO,
     res: FastifyReply
   ) {
@@ -38,31 +39,32 @@ export async function criarKixikilaService(
   
       // Verificar se o adminId existe
       const adminExiste = await prisma.user.findUnique({
-        where: { id: dadosValidados.adminId },
+        where: { id: adminId },
       });
   
       if (!adminExiste) {
         return res.status(404).send({
-          mensagem: "O administrador não foi encontrado.",
+          mensagem: "O administrador especificado não foi encontrado.",
         });
       }
   
       // Ajustar a data de início ao fuso horário
       const inicioAjustado = ajustarFusoHorario(new Date(dadosValidados.inicio), timeZone);
   
-      // Criar o grupo Kixikila
+      // Criar o grupo Kixikila com o `adminId` passado por parâmetro
       const novoKixikila = await prisma.kixikila.create({
         data: {
           grupo: dadosValidados.grupo,
           valor: dadosValidados.valor,
           limiteDeMembros: dadosValidados.limiteDeMembros,
-          adminId: dadosValidados.adminId,
-          inicio: inicioAjustado, // Data ajustada com fuso horário
+          adminId: adminId, 
+          inicio: inicioAjustado,
           frequencia: dadosValidados.frequencia,
         },
       });
   
       return res.status(201).send({
+        mensagem: "Grupo Kixikila criado com sucesso.",
         grupo: novoKixikila,
       });
     } catch (error) {
@@ -73,4 +75,3 @@ export async function criarKixikilaService(
       });
     }
   }
-  

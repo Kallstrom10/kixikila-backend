@@ -97,13 +97,11 @@ export async function cadastrarUser(app: FastifyInstance) {
       });
 
       if (telefoneExiste) {
-        return res.status(409).send({
-          mensagem: "Já existe um usuário com este telefone, cadastre com outro.",
-        });
+        return res.send("Já existe um usuário com este telefone, cadastre com outro.").status(409);
       }
 
-      console.log("BODY RECEBIDO NA ROTA:", body);
-      console.log("FILES RECEBIDOS NA ROTA:", files);
+      // console.log("BODY RECEBIDO NA ROTA:", body);
+      // console.log("FILES RECEBIDOS NA ROTA:", files);
 
       const adjustedFiles: Record<string, MultipartFile> = {};
       Object.keys(files).forEach((key) => {

@@ -38,8 +38,8 @@ export async function cadastrarUsuarioService(
 ) {
   const { nome_completo, telefone, senha } = body;
 
-  console.log("FILES NO SERVICE:", files);
-  console.log("BODY NO SERVICE:", body);
+  // console.log("FILES NO SERVICE:", files);
+  // console.log("BODY NO SERVICE:", body);
 
   if (!files.imagem_perfil || !files.imagem_bi_frente || !files.imagem_bi_verso) {
     return res.status(400).send({
@@ -59,9 +59,7 @@ export async function cadastrarUsuarioService(
     });
 
     if (usuarioExistente) {
-      return res.status(409).send({
-        mensagem: "Já existe um usuário com este telefone, cadastre com outro.",
-      });
+      return res.send("Já existe um usuário com este telefone, cadastre com outro.").status(409);
     }
 
     const senhaCriptografada = await bcrypt.hash(senha, SALT_ROUNDS);
